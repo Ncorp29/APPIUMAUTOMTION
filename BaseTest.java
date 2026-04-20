@@ -1,23 +1,28 @@
 package base;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Optional;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
-import utils.DriverFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 
 public class BaseTest {
 
+    protected AndroidDriver driver;
+    private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
+
     @Parameters({"deviceName"})
-    @BeforeMethod
-    public void setUp(@Optional("emulator-5556") String deviceName) throws Exception {
-        System.out.println("Starting test on device: " + deviceName);
+    @BeforeClass
+    public void setUp(@Optional("emulator-5556") String deviceName) throws MalformedURLException {
+        logger.info("Starting test on device: {}", deviceName);
 
         UiAutomator2Options options = new UiAutomator2Options();
 
@@ -46,20 +51,22 @@ public class BaseTest {
         options.setAdbExecTimeout(Duration.ofSeconds(120));
 
         // Appium 3 server URL (root path works)
-        AndroidDriver driver = new AndroidDriver(
-                new URL("http://127.0.0.1:4723/"),
-                options
-        );
-
-        DriverFactory.setDriver(driver);
+        try {
+            driver = new AndroidDriver(
+                    new URL("http://127.0.0.1:4723/"),
+                    options
+            );
+        } catch (RuntimeException e) {
+            throw new IllegalStateException("Failed to initialize AndroidDriver or connect to the Appium server for device: " + deviceName, e);
+        }
     }
 
-    @AfterMethod
+    @AfterClass
     public void tearDown() {
-        if (DriverFactory.getDriver() != null) {
-            System.out.println("Closing Appium session...");
-            DriverFactory.getDriver().quit();
-            DriverFactory.removeDriver();
+        if (driver != null) {
+            logger.info("Closing Appium session...");
+            driver.quit();
+            driver = null;
         }
     }
 }
