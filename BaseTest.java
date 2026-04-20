@@ -56,9 +56,10 @@ public class BaseTest {
 
     @AfterMethod
     public void tearDown() {
-        if (DriverFactory.getDriver() != null) {
+        AndroidDriver driver = DriverFactory.getDriver();
+        if (driver != null) {
             System.out.println("Closing Appium session...");
-            DriverFactory.getDriver().quit();
+            driver.quit();
             DriverFactory.removeDriver();
         }
     }
