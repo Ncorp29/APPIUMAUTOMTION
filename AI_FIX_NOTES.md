@@ -1,5 +1,16 @@
 # AI Fix Notes
 
+Session: seq-1777291061193-lclk0c62v
+Repository: Ncorp29/APPIUMAUTOMTION
+
+- [1] (high) BaseTest.java: Class uses a raw `AndroidDriver` type (`protected AndroidDriver driver;`) instead of a parameterized generic type. This weakens type safety and makes the test framework harder to maintain and extend.
+- [2] (high) BaseTest.java: Driver lifecycle management is not visible in the snippet, but Appium tests commonly leak sessions if `quit()` is not guaranteed in an `@AfterClass`/`@AfterMethod`. Verify that teardown always executes even when setup fails.
+- [3] (high) HomePage.java: Method `isNotesVisible()` instantiates `WebDriverWait` inline with a 10-second timeout on every call. This creates repeated wait objects and can slow tests; extract a reusable wait strategy or helper.
+- [4] (high) HomePage.java: The constructor accepts `AndroidDriver` but the wait casts it to `WebDriver` (`(WebDriver) driver`). This cast is unnecessary because `AndroidDriver` already implements WebDriver; remove the cast to simplify the code.
+- [5] (high) HomePage.java: The file appears truncated (`public bool...`), indicating incomplete implementation. Missing methods or unfinished code will prevent compilation and block test execution.
+
+# AI Fix Notes
+
 Session: seq-1776664286162-8t0farnlw
 Repository: Ncorp29/APPIUMAUTOMTION
 
