@@ -16,12 +16,17 @@ import java.time.Duration;
 
 public class BaseTest {
 
-    protected AndroidDriver driver;
+    protected static AndroidDriver<?> driver;
     private static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
 
     @Parameters({"deviceName"})
     @BeforeClass
     public void setUp(@Optional("emulator-5556") String deviceName) throws MalformedURLException {
+        if (driver != null) {
+            logger.info("Reusing existing Appium session for device: {}", deviceName);
+            return;
+        }
+
         logger.info("Starting test on device: {}", deviceName);
 
         UiAutomator2Options options = new UiAutomator2Options();
@@ -57,6 +62,7 @@ public class BaseTest {
                     options
             );
         } catch (RuntimeException e) {
+            tearDown();
             throw new IllegalStateException("Failed to initialize AndroidDriver or connect to the Appium server for device: " + deviceName, e);
         }
     }
